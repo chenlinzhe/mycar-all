@@ -12,8 +12,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,7 +47,6 @@ import xiaozhi.modules.security.user.SecurityUser;
 @RestController
 @RequestMapping("/agent/chat-history")
 public class AgentChatHistoryController {
-    private static final Logger logger = LoggerFactory.getLogger(AgentChatHistoryController.class);
     private final AgentChatHistoryBizService agentChatHistoryBizService;
     private final AgentChatHistoryService agentChatHistoryService;
     private final AgentService agentService;
@@ -142,14 +139,14 @@ public class AgentChatHistoryController {
         // 从Redis获取agentId和sessionId
         String agentSessionInfo = (String) redisUtils.get(RedisKeys.getChatHistoryKey(uuid));
         if (StringUtils.isBlank(agentSessionInfo)) {
-            throw new RenException("下载链接已过期或无效");
+            throw new RenException(ErrorCode.DOWNLOAD_LINK_EXPIRED);
         }
 
         try {
             // 解析agentId和sessionId
             String[] parts = agentSessionInfo.split(":");
             if (parts.length != 2) {
-                throw new RenException("下载链接无效");
+                throw new RenException(ErrorCode.DOWNLOAD_LINK_INVALID);
             }
             String agentId = parts[0];
             String sessionId = parts[1];

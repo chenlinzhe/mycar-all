@@ -146,4 +146,17 @@ public class RedisKeys {
         return "agent:chat:history:" + uuid;
     }
 
+    /**
+     * 获取音色克隆音频ID的缓存key
+     */
+    public static String getVoiceCloneAudioIdKey(String uuid) {
+        return "voiceClone:audio:id:" + uuid;
+    }
+
+    /**
+     * 获取知识库缓存key
+     */
+    public static String getKnowledgeBaseCacheKey(String datasetId) {
+        return "knowledge:base:" + datasetId;
+    }
 }

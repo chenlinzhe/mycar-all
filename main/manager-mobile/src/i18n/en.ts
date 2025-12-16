@@ -19,8 +19,7 @@ export default {
   'login.enterCaptcha': 'Please enter verification code',
   'login.loginButton': 'Login',
   'login.loggingIn': 'Logging in...',
-  'login.noAccount': 'did not have an account?',
-  'login.registerNow': 'Register Now',
+  'login.noAccount': 'Sign Up',
   'login.enterPhone': 'Please enter phone number',
   'login.selectCountry': 'Select Country/Region',
   'login.confirm': 'Confirm',
@@ -30,6 +29,7 @@ export default {
   'login.requiredCaptcha': 'Verification code cannot be empty',
   'login.requiredMobile': 'Please enter a valid phone number',
   'login.captchaError': 'Graphic verification code error',
+  'login.forgotPassword': 'Forgot Password',
 
   // Register page
   'register.pageTitle': 'Register',
@@ -189,6 +189,27 @@ export default {
   'common.unknownError': 'Unknown error',
   'common.networkError': 'Network error',
 
+  // Retrieve Password page
+  'retrievePassword.title': 'Reset Password',
+  'retrievePassword.subtitle': 'Recover your account password via mobile number',
+  'retrievePassword.mobileRequired': 'Please enter mobile number',
+  'retrievePassword.inputCorrectMobile': 'Please enter a valid mobile number',
+  'retrievePassword.captchaRequired': 'Please enter graphic verification code',
+  'retrievePassword.mobileCaptchaRequired': 'Please enter SMS verification code',
+  'retrievePassword.newPasswordRequired': 'Please enter new password',
+  'retrievePassword.confirmNewPasswordRequired': 'Please confirm new password',
+  'retrievePassword.passwordsNotMatch': 'Passwords do not match',
+  'retrievePassword.mobilePlaceholder': 'Please enter mobile number',
+  'retrievePassword.captchaPlaceholder': 'Please enter graphic verification code',
+  'retrievePassword.mobileCaptchaPlaceholder': 'Please enter SMS verification code',
+  'retrievePassword.newPasswordPlaceholder': 'Please enter new password',
+  'retrievePassword.confirmNewPasswordPlaceholder': 'Please confirm new password',
+  'retrievePassword.getMobileCaptcha': 'Get Code',
+  'retrievePassword.captchaSendSuccess': 'Verification code sent successfully',
+  'retrievePassword.passwordUpdateSuccess': 'Password reset successfully',
+  'retrievePassword.resetButton': 'Reset Password',
+  'retrievePassword.goToLogin': 'Back to Login',
+
   // SM2 encryption related error messages
   'sm2.publicKeyNotConfigured': 'SM2 public key not configured, please contact administrator',
   'sm2.encryptionFailed': 'Password encryption failed',
@@ -240,7 +261,7 @@ export default {
   'settings.restartLater': 'Later',
   // About us
   'settings.aboutApp': 'About XiaoZhi Console',
-  'settings.aboutContent': 'XiaoZhi Console\n\nA cross-platform mobile management app built with Vue.js 3 + uni-app, providing device management, agent configuration and other functions for xiaozhi ESP32 smart hardware.\n\n© 2025 xiaozhi-esp32-server 0.8.3',
+  'settings.aboutContent': 'XiaoZhi Console\n\nA cross-platform mobile management app built with Vue.js 3 + uni-app, providing device management, agent configuration and other functions for xiaozhi ESP32 smart hardware.\n\n© 2025 xiaozhi-esp32-server {version}',
   'settings.restartSuccess': 'Saved, you can manually restart the app later',
   'settings.serverUrlSavedAndCacheCleared': 'Server URL saved and cache cleared',
   'settings.resetToDefaultAndCacheCleared': 'Reset to default and cache cleared',
