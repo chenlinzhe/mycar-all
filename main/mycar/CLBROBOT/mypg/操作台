@@ -1,0 +1,46 @@
+1.启动小车的小智客户端
+source /home/pi/xiaozhi/bin/activate
+cd py-xiaozhi-main
+
+python main.py --mode cli
+备用 
+python main.py --mode cli --skip-activation
+
+-------------------------------------------------------------------------------------------------
+
+3.windows连接小车
+ssh pi@192.168.1.123 -p 22
+
+4.其他环境
+source /home/pi/my_ros_env/en/bin/activate
+source /home/pi/my_ros_env/env/bin/activate
+
+5.起床歌曲
+source /home/pi/baidu_env/bin/activate
+
+
+常用命令：
+unzip /home/pi/xiaozhi-esp32-server-main.zip -d /home/pi
+
+
+python3 -m pip install --upgrade pip  
+# 5. 安装系统依赖（树莓派需要）  
+sudo apt-get update  
+sudo apt-get install libopus-dev portaudio19-dev  
+  
+# 6. 安装Python依赖  
+pip3 install -r requirements.txt  
+
+pip check  
+# 7. 运行项目（CLI模式适合树莓派小车）  
+python3 main.py --mode cli
+
+
+sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/aliyun.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
+sudo apt-get install libopus-dev portaudio19-dev
+
+pip install PyQt5==5.15.4 -i https://mirrors.aliyun.com/pypi/simple/
+
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+
+

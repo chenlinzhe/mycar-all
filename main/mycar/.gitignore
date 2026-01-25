@@ -1,0 +1,10 @@
+*.zip
+*.rar
+*.7z
+*.iso
+*.mp4
+*.tar.gz
+*.mp3
+
+
+/home/pi/mycar/py-xiaozhi-main/models
