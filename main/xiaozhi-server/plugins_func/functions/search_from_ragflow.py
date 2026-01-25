@@ -2,6 +2,7 @@ import requests
 import sys
 from config.logger import setup_logging
 from plugins_func.register import register_function, ToolType, ActionResponse, Action
+import time  # 添加时间模块  
 
 TAG = __name__
 logger = setup_logging()
@@ -25,6 +26,13 @@ SEARCH_FROM_RAGFLOW_FUNCTION_DESC = {
     "search_from_ragflow", SEARCH_FROM_RAGFLOW_FUNCTION_DESC, ToolType.SYSTEM_CTL
 )
 def search_from_ragflow(conn, question=None):
+
+
+    # 记录开始时间  
+    start_time = time.time()  
+    print("RAG检索开始----")
+    
+        
     # 确保字符串参数正确处理编码
     if question and isinstance(question, str):
         # 确保问题参数是UTF-8编码的字符串
@@ -40,7 +48,7 @@ def search_from_ragflow(conn, question=None):
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
     # 确保payload中的字符串都是UTF-8编码
-    payload = {"question": question, "dataset_ids": dataset_ids}
+    payload = {"question": question, "re_rank_model": "","dataset_ids": dataset_ids}
 
     try:
         # 使用ensure_ascii=False确保JSON序列化时正确处理中文
@@ -48,7 +56,7 @@ def search_from_ragflow(conn, question=None):
             url,
             json=payload,
             headers=headers,
-            timeout=5,
+            timeout=1,
             verify=False,
         )
 
@@ -84,6 +92,15 @@ def search_from_ragflow(conn, question=None):
                 else:
                     contents.append(str(content))
 
+
+
+        # 记录总耗时  
+        total_time = time.time()  
+        total_duration = (total_time - start_time) * 1000  
+
+        print("---------------total_duration-------",total_duration)
+
+
         if contents:
             # 组织知识库内容为引用模式
             context_text = f"# 关于问题【{question}】查到知识库如下\n"
@@ -91,7 +108,14 @@ def search_from_ragflow(conn, question=None):
             context_text += "\n```"
         else:
             context_text = "根据知识库查询结果，没有相关信息。"
+
+            
         return ActionResponse(Action.REQLLM, context_text, None)
+
+
+
+
+
 
     except Exception as e:
         # 使用安全的方式记录异常，避免编码问题

@@ -310,7 +310,9 @@ def speak_txt(conn, text):
             content_type=ContentType.ACTION,
         )
     )
-    conn.tts.tts_one_sentence(conn, ContentType.TEXT, content_detail=text)
+    # 去掉*号后再传入TTS
+    tts_text = text.replace('*', '') if text is not None else text
+    conn.tts.tts_one_sentence(conn, ContentType.TEXT, content_detail=tts_text)
     conn.tts.tts_text_queue.put(
         TTSMessageDTO(
             sentence_id=conn.sentence_id,

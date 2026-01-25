@@ -1,0 +1,77 @@
+1.CMD
+net stop MySQL
+net start mysql80
+
+
+2.可能先启动wsl
+桌面docker运行redis
+
+3.api
+运行D:\mypj3\congwu\xiaozhi-esp32-server\main\manager-api\src\main\java\xiaozhi\AdminApplication.java
+
+4.智控台
+cd D:\mypj3\congwu-ngnix\xiaozhi-esp32-server\main\manager-web
+npm run serve
+
+可能需要：npm install
+
+5.语音
+cd D:\mypj3\congwu-ngnix\xiaozhi-esp32-server\main\xiaozhi-server
+conda activate py310 
+python app.py
+
+
+6.MQTT网关
+cd D:\mypj3\congwu\xiaozhi-esp32-server\main\xiaozhi-mqtt-gateway
+# 启动服务
+pm2 start ecosystem.config.js
+# 查看日志
+pm2 logs xz-mqtt
+
+关闭：pm2 stop xz-mqtt
+重启：pm2 restart xz-mqtt
+
+
+测试：
+curl "http://192.168.1.169:8001/xiaozhi/ota/" -H "Content-Type: application/json" -H "Client-Id: 7b94d69a-9808-4c59-9c9b-704333b38aff" -H "Device-Id: 11:22:33:44:55:66" --data-raw "{\"application\": {\"version\": \"1.0.1\",\"elf_sha256\": \"1\"},\"board\": {\"mac\": \"11:22:33:44:55:66\"}}"
+
+监控：
+pm2 monit
+
+
+GIT
+
+一、分支上开发后：
+git status #​查一下更改：
+git add . #提交到暂存：
+git commit -m "描述修改内容" # 创建提交 
+git pull #拉取，合并，防止其他人有更新。
+git push # 重新推送
+
+
+二、恢复版本：
+查版本：
+git log --oneline --graph --decorate --all
+恢复：
+git reset --hard 1cbdb5b5
+
+
+
+暂存当前，去历史版本，再回来：
+git stash push -m "保存当前工作状态-日期"
+git log --oneline --graph -n 20
+git checkout 3490651b
+
+
+--------------------
+
+文杰文件：
+config_loader.py
+application-dev.yml
+config.yaml
+settings.py
+vue.config.js
+
+
+deepseek
+sk-cd1b1f16367a4705af819962f60e575d

@@ -42,7 +42,7 @@ module.exports = defineConfig({
   productionSourceMap: process.env.NODE_ENV !=='production', // 生产环境不生成 source map
    devServer: {
     host: '0.0.0.0', 
-    port: 6006, // 指定端口为 8001
+    port: 8001, // 指定端口为 8001
     allowedHosts: 'all',  // Vue CLI 5+ 语法  
     static: {  
       directory: path.join(__dirname, 'test'), 

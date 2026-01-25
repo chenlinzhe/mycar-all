@@ -910,12 +910,14 @@ class ConnectionHandler:
             if content is not None and len(content) > 0:
                 if not tool_call_flag:
                     response_message.append(content)
+                    # 去掉*号后再传入TTS
+                    tts_content = content.replace('*', '') if content else content
                     self.tts.tts_text_queue.put(
                         TTSMessageDTO(
                             sentence_id=self.sentence_id,
                             sentence_type=SentenceType.MIDDLE,
                             content_type=ContentType.TEXT,
-                            content_detail=content,
+                            content_detail=tts_content,
                         )
                     )
         # 处理function call
@@ -1018,7 +1020,9 @@ class ConnectionHandler:
                 Action.ERROR,
             ]:  # 直接回复前端
                 text = result.response if result.response else result.result
-                self.tts.tts_one_sentence(self, ContentType.TEXT, content_detail=text)
+                # 去掉*号后再传入TTS
+                tts_text = text.replace('*', '') if text is not None else text
+                self.tts.tts_one_sentence(self, ContentType.TEXT, content_detail=tts_text)
                 self.dialogue.put(Message(role="assistant", content=text))
             elif result.action == Action.REQLLM:
                 # 收集需要 LLM 处理的工具
@@ -1128,6 +1132,13 @@ class ConnectionHandler:
             # 触发停止事件
             if self.stop_event:
                 self.stop_event.set()
+
+            # 停止歌词同步任务
+            try:
+                from core.handle.sendLyricsHandle import stop_lyrics_sync
+                await stop_lyrics_sync(self)
+            except Exception as e:
+                self.logger.bind(tag=TAG).debug(f"停止歌词同步任务时出错: {e}")
 
             # 清空任务队列
             self.clear_queues()
