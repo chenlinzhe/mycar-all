@@ -1,0 +1,307 @@
+    
+# 现在安全导入    
+try:    
+    from LOBOROBOT import LOBOROBOT    
+    print("[SUCCESS] LOBOROBOT 导入成功")    
+except ImportError as e:    
+    print("[IMPORT ERROR]", str(e))    
+    print("如果还是失败，请检查：")    
+    print("1. 文件名是否严格为 LOBOROBOT.py（大小写敏感）")    
+    print("2. LOBOROBOT.py 文件是否有语法错误？")    
+    LOBOROBOT = None    
+    
+# ================================================    
+# 下面才是你原来的 import 和代码    
+# ================================================    
+    
+import time    
+import json    
+import threading    
+from concurrent.futures import ThreadPoolExecutor    
+from src.mcp.tools.camera import get_camera_instance    
+from src.utils.logging_config import get_logger    
+    
+logger = get_logger(__name__)    
+    
+def speak_result(text):    
+    """播报识别结果，使用与普通拍照相同的播报机制"""    
+    try:    
+        # 使用与普通拍照功能相同的播报方式    
+        from src.utils.common_utils import play_audio_nonblocking    
+        play_audio_nonblocking(text)    
+        logger.info(f"已添加播报任务: {text[:50]}...")    
+        # 增加等待时间，确保播报完成    
+        time.sleep(3)  # 3秒播报间隔    
+    except Exception as e:    
+        logger.error(f"语音播报失败: {e}")    
+    
+import cv2  
+import base64  
+import threading  
+import time  
+import json  
+from concurrent.futures import ThreadPoolExecutor  
+from src.utils.logging_config import get_logger  
+from src.utils.config_manager import ConfigManager  
+  
+logger = get_logger(__name__)  
+  
+class ConcurrentSearcher:  
+    """并发搜索器 - 持续打开摄像头模式"""  
+          
+    def __init__(self, camera, clbrobot, target_item):  
+        self.camera = camera  
+        self.clbrobot = clbrobot  
+        self.target_item = target_item  
+        self.found = False  
+        self.search_active = True  
+        self.lock = threading.Lock()  
+        self.result_message = ""  
+          
+        # 持续打开摄像头  
+        self.cap = cv2.VideoCapture(0)  
+        if not self.cap.isOpened():  
+            logger.error("无法打开摄像头")  
+            raise RuntimeError("摄像头初始化失败")  
+              
+        # 设置低分辨率以提高性能  
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 160)  
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 120)  
+        logger.info("摄像头已持续打开，分辨率设置为160x120")  
+          
+    def _encode_frame_to_jpeg(self, frame):  
+        """将帧编码为JPEG字节数据"""  
+        try:  
+            # 缩放图像以减少传输大小  
+            height, width = frame.shape[:2]  
+            max_dim = max(height, width)  
+            scale = 320 / max_dim if max_dim > 320 else 1.0  
+              
+            if scale < 1.0:  
+                new_width = int(width * scale)  
+                new_height = int(height * scale)  
+                frame = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_AREA)  
+              
+            # 编码为JPEG  
+            success, jpeg_data = cv2.imencode(".jpg", frame)  
+            if success:  
+                return jpeg_data.tobytes()  
+            return None  
+        except Exception as e:  
+            logger.error(f"帧编码失败: {e}")  
+            return None  
+              
+    def _send_frame_to_analysis(self, jpeg_bytes):  
+        """发送帧到AI分析服务"""  
+        try:  
+            # 获取配置  
+            config = ConfigManager.get_instance()  
+            explain_url = config.get_config("CAMERA.Local_VL_url")  
+            device_id = config.get_config("SYSTEM_OPTIONS.DEVICE_ID")  
+            client_id = config.get_config("SYSTEM_OPTIONS.CLIENT_ID")  
+              
+            if not explain_url:  
+                return None  
+                  
+            # 准备请求  
+            headers = {  
+                "Device-Id": device_id,  
+                "Client-Id": client_id  
+            }  
+              
+            files = {  
+                "question": (None, f"图中是否有{self.target_item}？如果有，请回答'有'并描述其位置。如果没有，请回答'没有'。"),  
+                "file": ("camera.jpg", jpeg_bytes, "image/jpeg")  
+            }  
+              
+            # 发送请求  
+            import requests  
+            response = requests.post(explain_url, headers=headers, files=files, timeout=10)  
+              
+            if response.status_code == 200:  
+                return response.text  
+            else:  
+                logger.error(f"AI分析请求失败: {response.status_code}")  
+                return None  
+                  
+        except Exception as e:  
+            logger.error(f"发送帧到分析服务失败: {e}")  
+            return None  
+              
+    def video_capture_thread(self):  
+        """视频捕获线程 - 每1秒捕获一帧并发送分析"""  
+        capture_interval = 1  # 每1秒捕获一次  
+          
+        while self.search_active and not self.found:  
+            try:  
+                # 直接读取帧  
+                ret, frame = self.cap.read()  
+                if not ret:  
+                    logger.warning("无法读取摄像头帧")  
+                    time.sleep(capture_interval)  
+                    continue  
+                  
+                # 编码帧  
+                jpeg_bytes = self._encode_frame_to_jpeg(frame)  
+                if not jpeg_bytes:  
+                    time.sleep(capture_interval)  
+                    continue  
+                  
+                # 发送到AI分析  
+                result = self._send_frame_to_analysis(jpeg_bytes)  
+                if result:  
+                    # 解析结果  
+                    analysis_text = self._parse_result(result)  
+                    if analysis_text:  
+                        # 添加控制台打印  
+                        print(f"\n[搜索结果] {analysis_text}")  
+                        logger.info(f"图像分析结果: {analysis_text}")  
+                          
+                        # 语音播报  
+                        try:  
+                            from src.utils.common_utils import play_audio_nonblocking  
+                            play_audio_nonblocking(f"拍照结果：{analysis_text}")  
+                        except Exception as e:  
+                            logger.error(f"语音播报失败: {e}")  
+                          
+                        # 检查是否找到目标  
+                        if self._check_found(analysis_text):  
+                            with self.lock:  
+                                self.found = True  
+                                self.search_active = False  
+                                self.result_message = f"成功找到{self.target_item}！"  
+                                self.clbrobot.t_stop(0)  
+                            return  
+                      
+                time.sleep(capture_interval)  
+                      
+            except Exception as e:  
+                logger.error(f"视频捕获线程错误: {e}")  
+                time.sleep(capture_interval)  
+                  
+    def _parse_result(self, result):  
+        """解析AI返回结果"""  
+        try:  
+            result_dict = json.loads(result)  
+            if result_dict.get("success"):  
+                return result_dict.get("text", "")  
+        except json.JSONDecodeError:  
+            return result  
+        return ""  
+          
+    def _check_found(self, analysis_text):  
+        """检查是否找到目标物品"""  
+        if any(keyword in analysis_text for keyword in ["有", "找到", "存在", "是", "yes"]):  
+            logger.info(f"找到目标物品: {self.target_item}")  
+            return True  
+        return False  
+          
+    def movement_thread(self):  
+        """运动控制线程 - 执行搜索动作序列"""  
+        movements = [    
+            ("前进2步", lambda: self.clbrobot.t_up(50, 2)),    
+            ("左转", lambda: self.clbrobot.turnLeft(50, 1)),    
+            ("向右2步", lambda: self.clbrobot.moveRight(50, 2)),    
+            ("左转", lambda: self.clbrobot.turnLeft(50, 1)),    
+            ("后退2步", lambda: self.clbrobot.t_down(50, 2)),    
+            ("左转", lambda: self.clbrobot.turnLeft(50, 1)),    
+            ("向左2步", lambda: self.clbrobot.moveLeft(50, 2)),    
+            ("左转", lambda: self.clbrobot.turnLeft(50, 1)),    
+            ("前进2步", lambda: self.clbrobot.t_up(50, 2))    
+        ]   
+              
+        movement_index = 0      
+        action_interval = 3  # 动作间隔3秒      
+              
+        while self.search_active and not self.found:      
+            try:      
+                with self.lock:      
+                    if not self.found and self.search_active:      
+                        action_name, action_func = movements[movement_index % len(movements)]      
+                        logger.info(f"执行动作: {action_name}")      
+                        action_func()      
+                        movement_index += 1      
+                              
+                time.sleep(action_interval)      
+                      
+            except Exception as e:      
+                logger.error(f"运动控制线程错误: {e}")      
+                time.sleep(action_interval)  
+      
+    def __del__(self):  
+        # 4个空格缩进  
+        if hasattr(self, 'cap') and self.cap is not None:  
+            # 8个空格缩进  
+            self.cap.release()  
+            logger.info("摄像头资源已释放")
+
+            
+def search_item(arguments: dict) -> str:  
+    """并发版本的物品搜索函数 - 持续打开摄像头模式"""  
+    import logging  
+    import os  
+      
+    # 禁用OpenCV日志警告  
+    os.environ['OPENCV_LOG_LEVEL'] = 'ERROR'  
+    logging.getLogger('opencv').setLevel(logging.ERROR)  
+      
+    # 临时降低日志级别  
+    # original_level = logging.getLogger().level  
+    # logging.getLogger().setLevel(logging.WARNING)  
+      
+    target_item = arguments.get("target_item", "")  
+    search_cycles = arguments.get("search_cycles", 3)  
+      
+    try:  
+        print(f"\n=== 开始搜索物品: {target_item} (每秒分析模式) ===")  
+          
+        # 检查 LOBOROBOT 是否可用  
+        if LOBOROBOT is None:  
+            return "机器人控制库不可用，无法执行搜索"  
+              
+        # 初始化机器人  
+        clbrobot = LOBOROBOT()  
+          
+        logger.info(f"开始持续摄像头搜索物品: {target_item}, 循环次数: {search_cycles}")  
+          
+        # 创建并发搜索器（持续打开模式）  
+        searcher = ConcurrentSearcher(None, clbrobot, target_item)  
+          
+        # 启动并发线程  
+        with ThreadPoolExecutor(max_workers=2) as executor:  
+            video_future = executor.submit(searcher.video_capture_thread)  
+            movement_future = executor.submit(searcher.movement_thread)  
+                  
+            # 等待任一线程完成或超时  
+            timeout_seconds = search_cycles * 30  
+                  
+            for future in [video_future, movement_future]:  
+                try:  
+                    future.result(timeout=timeout_seconds)  
+                    with searcher.lock:  
+                        if searcher.found:  
+                            print(f"\n{searcher.result_message}")  
+                            return searcher.result_message  
+                except Exception as e:  
+                    logger.error(f"搜索线程异常: {e}")  
+              
+        # 超时未找到  
+        with searcher.lock:  
+            searcher.search_active = False  
+            clbrobot.t_stop(0)  
+            result = f"经过{search_cycles}轮搜索，没有找到{target_item}"  
+            print(f"\n{result}")  
+            return result  
+                  
+    except Exception as e:  
+        error_msg = f"持续摄像头搜索过程中出现错误: {str(e)}"  
+        logger.error(error_msg)  
+        try:  
+            if 'clbrobot' in locals():  
+                clbrobot.t_stop(0)  
+        except:  
+            pass  
+        return error_msg  
+    # finally:  
+    #     # 恢复原始日志级别  
+    #     logging.getLogger().setLevel(original_level)

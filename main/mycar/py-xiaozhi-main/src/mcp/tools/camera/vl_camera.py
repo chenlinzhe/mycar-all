@@ -91,6 +91,19 @@ class VLCamera(BaseCamera):
                     frame, (new_width, new_height), interpolation=cv2.INTER_AREA
                 )
 
+
+            # 创建img目录（如果不存在）  ----------------------------------------------------------
+            img_dir = Path("img")  
+            img_dir.mkdir(exist_ok=True)  
+            
+            # 保存原始尺寸图片到img目录  
+            timestamp = int(time.time())  
+            original_filename = img_dir / f"capture_{timestamp}.jpg"  
+            cv2.imwrite(str(original_filename), frame)  
+            logger.info(f"图片已保存到: {original_filename}")  
+
+
+
             # 直接将图像编码为JPEG字节流
             success, jpeg_data = cv2.imencode(".jpg", frame)
 
