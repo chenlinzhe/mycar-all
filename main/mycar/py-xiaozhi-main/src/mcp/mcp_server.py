@@ -254,29 +254,29 @@ class McpServer:
         original_tools = self.tools.copy()
         self.tools.clear()
 
-        # 添加系统工具
-        from src.mcp.tools.system import get_system_tools_manager
+        # # 添加系统工具
+        # from src.mcp.tools.system import get_system_tools_manager
 
-        system_manager = get_system_tools_manager()
-        system_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
+        # system_manager = get_system_tools_manager()
+        # system_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
 
-        # 添加日程管理工具
-        from src.mcp.tools.calendar import get_calendar_manager
+        # # 添加日程管理工具
+        # from src.mcp.tools.calendar import get_calendar_manager
 
-        calendar_manager = get_calendar_manager()
-        calendar_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
+        # calendar_manager = get_calendar_manager()
+        # calendar_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
 
-        # 添加倒计时器工具
-        from src.mcp.tools.timer import get_timer_manager
+        # # 添加倒计时器工具
+        # from src.mcp.tools.timer import get_timer_manager
 
-        timer_manager = get_timer_manager()
-        timer_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
+        # timer_manager = get_timer_manager()
+        # timer_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
 
-        # 添加音乐播放器工具
-        from src.mcp.tools.music import get_music_tools_manager
+        # # 添加音乐播放器工具
+        # from src.mcp.tools.music import get_music_tools_manager
 
-        music_manager = get_music_tools_manager()
-        music_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
+        # music_manager = get_music_tools_manager()
+        # music_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
 
         # 添加摄像头工具
         from src.mcp.tools.camera import take_photo
@@ -310,48 +310,73 @@ class McpServer:
             )
         )
 
-        # 添加桌面截图工具
-        from src.mcp.tools.screenshot import take_screenshot
+        # # 添加桌面截图工具
+        # from src.mcp.tools.screenshot import take_screenshot
 
-        # 注册take_screenshot工具
-        screenshot_properties = PropertyList(
-            [
-                Property("question", PropertyType.STRING),
-                Property("display", PropertyType.STRING, default_value=None),
-            ]
-        )
-        SCREENSHOT_DESC = (
-            "【桌面截图/屏幕分析】当用户提到：截屏、截图、看看桌面、分析屏幕、桌面上有什么、"
-            "屏幕截图、查看当前界面、分析当前页面、读取屏幕内容、屏幕OCR 时调用本工具。"
-            "功能：①截取整个桌面画面；②屏幕内容识别与分析；③屏幕OCR文字提取；④界面元素分析；"
-            "⑤应用程序识别；⑥错误信息截图分析；⑦桌面状态检查；⑧多屏幕截图。"
-            "参数说明：{ question: '你想了解的关于桌面/屏幕的问题', display: '显示器选择(可选)' }；"
-            "display可选值：'main'/'主屏'/'笔记本'(主显示器), 'secondary'/'副屏'/'外屏'(副显示器), 或留空(所有显示器)；"
-            "适用场景：桌面截图、屏幕分析、界面问题诊断、应用状态查看、错误截图分析等。"
-            "注意：该工具会截取桌面，请确保用户同意截图操作。"
-            "English: Desktop screenshot/screen analysis tool. Use when user mentions: screenshot, screen capture, "
-            "desktop analysis, screen content, current interface, screen OCR, etc. "
-            "Functions: ①Full desktop capture; ②Screen content recognition; ③Screen OCR; ④Interface analysis; "
-            "⑤Application identification; ⑥Error screenshot analysis; ⑦Desktop status check. "
-            "Parameters: { question: 'Question about desktop/screen', display: 'Display selection (optional)' }; "
-            "Display options: 'main'(primary), 'secondary'(external), or empty(all displays). "
-            "Examples: '截个图看看主屏', '查看副屏有什么', '分析当前屏幕内容', '读取屏幕上的文字'。"
-        )
+        # # 注册take_screenshot工具
+        # screenshot_properties = PropertyList(
+        #     [
+        #         Property("question", PropertyType.STRING),
+        #         Property("display", PropertyType.STRING, default_value=None),
+        #     ]
+        # )
+        # SCREENSHOT_DESC = (
+        #     "【桌面截图/屏幕分析】当用户提到：截屏、截图、看看桌面、分析屏幕、桌面上有什么、"
+        #     "屏幕截图、查看当前界面、分析当前页面、读取屏幕内容、屏幕OCR 时调用本工具。"
+        #     "功能：①截取整个桌面画面；②屏幕内容识别与分析；③屏幕OCR文字提取；④界面元素分析；"
+        #     "⑤应用程序识别；⑥错误信息截图分析；⑦桌面状态检查；⑧多屏幕截图。"
+        #     "参数说明：{ question: '你想了解的关于桌面/屏幕的问题', display: '显示器选择(可选)' }；"
+        #     "display可选值：'main'/'主屏'/'笔记本'(主显示器), 'secondary'/'副屏'/'外屏'(副显示器), 或留空(所有显示器)；"
+        #     "适用场景：桌面截图、屏幕分析、界面问题诊断、应用状态查看、错误截图分析等。"
+        #     "注意：该工具会截取桌面，请确保用户同意截图操作。"
+        #     "English: Desktop screenshot/screen analysis tool. Use when user mentions: screenshot, screen capture, "
+        #     "desktop analysis, screen content, current interface, screen OCR, etc. "
+        #     "Functions: ①Full desktop capture; ②Screen content recognition; ③Screen OCR; ④Interface analysis; "
+        #     "⑤Application identification; ⑥Error screenshot analysis; ⑦Desktop status check. "
+        #     "Parameters: { question: 'Question about desktop/screen', display: 'Display selection (optional)' }; "
+        #     "Display options: 'main'(primary), 'secondary'(external), or empty(all displays). "
+        #     "Examples: '截个图看看主屏', '查看副屏有什么', '分析当前屏幕内容', '读取屏幕上的文字'。"
+        # )
 
-        self.add_tool(
-            McpTool(
-                "take_screenshot",
-                SCREENSHOT_DESC,
-                screenshot_properties,
-                take_screenshot,
-            )
-        )
+        # self.add_tool(
+        #     McpTool(
+        #         "take_screenshot",
+        #         SCREENSHOT_DESC,
+        #         screenshot_properties,
+        #         take_screenshot,
+        #     )
+        # )
 
-        # 添加八字命理工具
-        from src.mcp.tools.bazi import get_bazi_manager
+        # # 添加八字命理工具
+        # from src.mcp.tools.bazi import get_bazi_manager
 
-        bazi_manager = get_bazi_manager()
-        bazi_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
+        # bazi_manager = get_bazi_manager()
+        # bazi_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
+
+
+        # 在 add_common_tools 方法中添加（在其他工具注册之后）  
+        # 添加机器人工具 - 在现有工具注册后添加  
+        try:  
+            # 添加机器人工具  
+            from src.mcp.tools.robot import get_robot_manager  
+            
+            robot_manager = get_robot_manager()  
+            robot_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
+            logger.info("机器人工具注册成功")  
+        except Exception as e:  
+            logger.error(f"机器人工具注册失败1: {e}")
+
+        try:    
+            # 添加搜索工具    
+            from src.mcp.tools.search import get_search_manager    
+            
+            search_manager = get_search_manager()    
+            search_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)  
+            logger.info("搜索工具注册成功")    
+        except Exception as e:    
+            logger.error(f"搜索工具注册失败: {e}", exc_info=True)  # ✅ 添加 exc_info=True 输出堆栈  
+            # 可选: 如果搜索工具是关键功能,可以选择不捕获异常,让程序启动失败
+
 
         # 恢复原有工具
         self.tools.extend(original_tools)
@@ -522,6 +547,16 @@ class McpServer:
                 if token and hasattr(camera, "set_explain_token"):
                     camera.set_explain_token(token)
                 logger.info(f"Vision service configured with URL: {url}")
+
+                # 配置搜索工具  
+                try:  
+                    from src.mcp.tools.search import get_search_manager  
+                    search_manager = get_search_manager()  
+                    if hasattr(search_manager, "set_vision_config"):  
+                        search_manager.set_vision_config(url, token)  
+                except Exception as e:  
+                    logger.error(f"Failed to configure search manager: {e}")
+
 
     async def _reply_result(self, id: int, result: Any):
         """
